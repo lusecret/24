@@ -2,9 +2,9 @@
 
 ## Configure Environment 
 
-Download rust and run the following command to set set it to the correct nightly build version:
+Download rust and run the following command to set  it to the correct nightly build version:
 
-rustup override set nightly-2022-08-11-x86_64-unknown-linux-gnu
+`rustup override set nightly-2022-08-11-x86_64-unknown-linux-gnu`
 
 ## Get code compiled
 
