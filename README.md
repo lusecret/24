@@ -1,5 +1,11 @@
 # Submission 63
 
+## Configure Environment 
+
+Download rust and run the following command to set set it to the correct nightly build version:
+
+rustup override set nightly-2022-08-11-x86_64-unknown-linux-gnu
+
 ## Get code compiled
 
 1. Open your terminal and CD to poly-mul-over-64bits-prime folder and type `make lib` command to create the C library libpolyntt64bits.dylib (Mac) or libpolyntt64bits.so (Linux). While our protocol is coded in Rust, the comput_(sub)circuit_keys operations are mostly coded in C to leverage open-source code for fast NTT implementation ( https://github.com/IBM/optimized-number-theoretic- transform-implementations).
