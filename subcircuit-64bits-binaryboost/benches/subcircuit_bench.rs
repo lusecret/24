@@ -94,7 +94,7 @@ fn ari_circuit_verify_benchmark(c: &mut Criterion) {
 }
 
 fn bboost_circuit_prove_benchmark(c: &mut Criterion) {
-  for &s in [16,18,20].iter() {
+  for &s in [20].iter() {
     let plot_config = PlotConfiguration::default().summary_scale(AxisScale::Logarithmic);
     let mut group = c.benchmark_group("commits_verify_benchmark");
     group.plot_config(plot_config);
@@ -133,7 +133,7 @@ fn bboost_circuit_prove_benchmark(c: &mut Criterion) {
 }
 
 fn bboost_circuit_verify_benchmark(c: &mut Criterion) {
-  for &s in [16,18,20].iter() {
+  for &s in [20].iter() {
     let plot_config = PlotConfiguration::default().summary_scale(AxisScale::Logarithmic);
     let mut group = c.benchmark_group("commits_verify_benchmark");
     group.plot_config(plot_config);
@@ -184,8 +184,9 @@ fn set_duration() -> Criterion {
 criterion_group! {
 name = benches_snark;
 config = set_duration();
-//targets = ari_circuit_prove_benchmark, ari_circuit_verify_benchmark, 
-targets = bboost_circuit_prove_benchmark, bboost_circuit_verify_benchmark
+targets = ari_circuit_prove_benchmark, ari_circuit_verify_benchmark, 
+//targets = bboost_circuit_prove_benchmark, bboost_circuit_verify_benchmark
+//targets =  bboost_circuit_prove_benchmark
 //targets = bboost_circuit_verify_benchmark
 }
 

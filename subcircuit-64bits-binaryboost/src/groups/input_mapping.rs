@@ -21,6 +21,7 @@ use super::schnorr::{Schnorr, SchnorrProof};
 pub struct InputMappingSystem {
   g: GroupElement,
   h: GroupElement,
+  u: GroupElement,
 }
 
 #[derive(Debug)]
@@ -55,15 +56,19 @@ impl InputMappingSystem {
     let mut g_bytes = [0u8; 64];
 
     reader.read_exact(&mut g_bytes).unwrap();
+    let h = GroupElement::from_uniform_bytes(&g_bytes);
+    reader.read_exact(&mut g_bytes).unwrap();
+    let u = GroupElement::from_uniform_bytes(&g_bytes);
 
     Self::from(
       GROUP_BASEPOINT_COMPRESSED.unpack().unwrap(),
-      GroupElement::from_uniform_bytes(&g_bytes),
+      h,
+      u,
     )
   }
 
-  pub fn from(g: GroupElement, h: GroupElement) -> Self {
-    InputMappingSystem { g, h }
+  pub fn from(g: GroupElement, h: GroupElement, u: GroupElement) -> Self {
+    InputMappingSystem { g, h, u }
   }
 
   fn protocol_name() -> &'static [u8] {
@@ -91,9 +96,10 @@ impl InputMappingSystem {
 
     let S: Vec<CompressedGroup> = omega
       .iter()
-      .map(|o| {
+      .zip(v_vec)
+      .map(|(o, vi)| {
         let r = q * o;
-        (r * self.g).compress()
+        (r * self.g + vi * self.u).compress()
       })
       .collect();
 
@@ -244,11 +250,12 @@ impl InputMappingSystem {
     let k_vec: Vec<Scalar> = self.compute_k_pow(&es_vec, transcript);
 
     let xs: Scalar = Scalar::from(x);
+    let xs2: Scalar = xs * xs;
 
-    let mut vt: Scalar = v_vec.into_iter().zip(k_vec).map(|(v, k)| v * k).sum();
-    vt = vt * xs;
+    let vt: Scalar = v_vec.into_iter().zip(k_vec).map(|(v, k)| v * k).sum();
+    //vt = vt * xs;
 
-    let h_gx = self.h - xs * self.g;
+    let h_gx = xs * self.h - xs2 * self.g - self.u;
     let schnorr = Schnorr::from(vt, h_gx);
 
     InputMappingInternalProof {
@@ -305,7 +312,7 @@ impl InputMappingSystem {
 
     let PK: GroupElement = GroupElement::vartime_multiscalar_mul(k_vec, pk_vt);
 
-    let h_gx = self.h - Scalar::from(x) * self.g;
+    let h_gx = xs * self.h - xs2 * self.g - self.u;
     in_proof
       .tr
       .verify(&PK.compress(), &h_gx.compress(), transcript)

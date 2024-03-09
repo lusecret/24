@@ -53,6 +53,8 @@ impl SubCircuitSystem {
     let mut h_bytes = [0u8; 64];
     reader.read_exact(&mut h_bytes).unwrap();
     let h = GroupElement::from_uniform_bytes(&h_bytes);
+    reader.read_exact(&mut h_bytes).unwrap();
+    let u = GroupElement::from_uniform_bytes(&h_bytes);
 
     assert!(Self::check_n(n));
     let log_nums = n.ilog2() as usize;
@@ -61,7 +63,7 @@ impl SubCircuitSystem {
 
     let gens = MultiCommitGens::new(mblen, &[label, IN_LABEL].concat());
 
-    let mapping = InputMappingSystem::from(g, h);
+    let mapping = InputMappingSystem::from(g, h, u);
 
     SubCircuitSystem {
       g,
@@ -318,7 +320,7 @@ impl SubCircuitSystem {
 
     let mapping_setup = self.mapping.setup_from(&phiv, &epsilonv);
 
-    let mapping_proof =
+    let mapping_proof: InputMappingInternalProof =
       self
         .mapping
         .internal_prove(rv, phiv, epsilonv, mapping_setup.omega, x, transcript);
